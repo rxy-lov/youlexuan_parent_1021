@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/brand")
@@ -40,6 +41,9 @@ public class BrandController {
      */
     @RequestMapping("/add")
     public Result add(@RequestBody TbBrand brand) {
+
+        //验证合法
+
         try {
             brandService.add( brand );
             return new Result( true, "增加成功" );
@@ -62,6 +66,7 @@ public class BrandController {
      */
     @RequestMapping("/update")
     public Result update(@RequestBody TbBrand brand) {
+        //验证合法
         try {
             brandService.update( brand );
             return new Result( true, "修改成功" );
@@ -98,5 +103,8 @@ public class BrandController {
         return brandService.findPage(brand, page, rows );
     }
 
-
+    @RequestMapping("/selectOptionList")
+    public List<Map> selectOptionList(){
+        return brandService.selectOptionList();
+    }
 }

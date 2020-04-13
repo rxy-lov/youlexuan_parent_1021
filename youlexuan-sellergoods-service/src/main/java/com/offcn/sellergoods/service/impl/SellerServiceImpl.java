@@ -66,6 +66,7 @@ public class SellerServiceImpl implements SellerService {
 	 */
 	@Override
 	public TbSeller findOne(String sellerId){
+
 		return sellerMapper.selectByPrimaryKey(sellerId);
 	}
 
@@ -136,5 +137,16 @@ public class SellerServiceImpl implements SellerService {
 		Page<TbSeller> page= (Page<TbSeller>)sellerMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	@Override
+	public void updateStatus(String sellerId, String status) {
+
+		//1.根据id查询,得到商家对象
+		TbSeller seller = sellerMapper.selectByPrimaryKey( sellerId );
+		//2.商家对象设置状态,update
+		seller.setStatus( status );
+		sellerMapper.updateByPrimaryKey( seller );
+
+	}
+
 }
