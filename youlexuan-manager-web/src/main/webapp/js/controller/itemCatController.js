@@ -1,8 +1,7 @@
  //商品类目控制层 
 app.controller('itemCatController' ,function($scope,$controller   ,itemCatService){	
 	
-	$controller('baseController',{$scope:$scope});//继承
-	
+
     //读取列表数据绑定到表单中  
 	$scope.findAll=function(){
 		itemCatService.findAll().success(
@@ -76,5 +75,46 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 			}			
 		);
 	}
-    
+
+    $scope.findByParentId=function(id){
+        itemCatService.findByParentId(id).success(
+            function(response){
+                $scope.list= response;
+            }
+        );
+    }
+
+    /**
+	 * 面包屑导航
+	 * 需要定义层级 level : a.将查询下级按钮隐藏 b.根据level展示面包中的名字
+	 * 当层级是3级时,
+     */
+    $scope.level = 1;
+    $scope.entity_2 = null;//面包屑二级
+    $scope.entity_3 = null;//面包屑三级
+    //设置级别方法
+	$scope.setLevel=function (value) {
+        $scope.level = value;
+    }
+
+    $scope.selectList=function (entity) {
+
+		//给面包屑导航赋值
+		if($scope.level == 1){
+            $scope.entity_2 = null;//面包屑二级
+            $scope.entity_3 = null;//面包屑三级
+		}
+
+        if($scope.level == 2){
+            $scope.entity_2 = entity;//面包屑二级
+            $scope.entity_3 = null;//面包屑三级
+        }
+
+        if($scope.level == 3){
+            $scope.entity_3 = entity;//面包屑二级
+        }
+
+		//查询
+        $scope.findByParentId(entity.id);
+    }
 });	

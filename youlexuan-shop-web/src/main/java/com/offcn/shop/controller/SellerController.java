@@ -5,6 +5,7 @@ import com.offcn.entity.PageResult;
 import com.offcn.entity.Result;
 import com.offcn.pojo.TbSeller;
 import com.offcn.sellergoods.service.SellerService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +51,12 @@ public class SellerController {
 	 */
 	@RequestMapping("/add")
 	public Result add(@RequestBody TbSeller seller){
+
+		//密码加密
+		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(  );
+
+		String password = passwordEncoder.encode( seller.getPassword() );
+		seller.setPassword( password );
 		try {
 			//查询用户名是否存在
 			TbSeller seller1 = findOne( seller.getSellerId() );
@@ -121,5 +128,8 @@ public class SellerController {
 	public PageResult search(@RequestBody TbSeller seller, int page, int rows  ){
 		return sellerService.findPage(seller, page, rows);		
 	}
-	
+
+	public static void main(String[] args) {
+
+	}
 }
