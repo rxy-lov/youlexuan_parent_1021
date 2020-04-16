@@ -1,10 +1,14 @@
 package com.offcn.sellergoods.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.offcn.entity.PageResult;
+import com.offcn.mapper.TbSpecificationOptionMapper;
 import com.offcn.mapper.TbTypeTemplateMapper;
+import com.offcn.pojo.TbSpecificationOption;
+import com.offcn.pojo.TbSpecificationOptionExample;
 import com.offcn.pojo.TbTypeTemplate;
 import com.offcn.pojo.TbTypeTemplateExample;
 import com.offcn.pojo.TbTypeTemplateExample.Criteria;
@@ -12,6 +16,7 @@ import com.offcn.sellergoods.service.TypeTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务实现层
@@ -23,6 +28,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 
 	@Autowired
 	private TbTypeTemplateMapper typeTemplateMapper;
+
+	@Autowired
+	private TbSpecificationOptionMapper specificationOptionMapper;
 	
 	/**
 	 * 查询全部
@@ -67,6 +75,32 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	@Override
 	public TbTypeTemplate findOne(Long id){
 		return typeTemplateMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public List<Map> findSpecList(Long id) {
+
+		//根据id查询模板
+		TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey( id );
+		//模板的规格转换json List<Map>
+		List<Map> list = JSON.parseArray( typeTemplate.getSpecIds(), Map.class );
+		//循环规格,查询规格项
+		if(list != null && list.size() >0){
+			for (Map map : list) {
+				Integer specIdInt = (Integer) map.get( "id" );
+				Long specId =  new Long(specIdInt);
+
+				TbSpecificationOptionExample example = new TbSpecificationOptionExample();
+				TbSpecificationOptionExample.Criteria criteria = example.createCriteria();
+				criteria.andSpecIdEqualTo( specId );
+				//根据规格id查询规格项
+				List<TbSpecificationOption> options = specificationOptionMapper.selectByExample( example );
+
+				map.put( "options", options );
+			}
+		}
+
+		return list;
 	}
 
 	/**

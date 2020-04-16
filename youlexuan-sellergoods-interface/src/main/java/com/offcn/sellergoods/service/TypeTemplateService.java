@@ -4,6 +4,7 @@ import com.offcn.entity.PageResult;
 import com.offcn.pojo.TbTypeTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 服务层接口
@@ -45,6 +46,11 @@ public interface TypeTemplateService {
 	 */
 	public TbTypeTemplate findOne(Long id);
 
+	/**
+	 * 根据id查询实体,实体中的规格要对应的查询项
+	 * Map结构可以灵活的实现自定义的内容
+	 */
+	public List<Map> findSpecList(Long id);
 
 	/**
 	 * 批量删除

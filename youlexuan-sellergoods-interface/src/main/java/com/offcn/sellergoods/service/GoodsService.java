@@ -1,6 +1,7 @@
 package com.offcn.sellergoods.service;
 
 import com.offcn.entity.PageResult;
+import com.offcn.group.Goods;
 import com.offcn.pojo.TbGoods;
 
 import java.util.List;
@@ -27,9 +28,9 @@ public interface GoodsService {
 
 
 	/**
-	 * 增加
+	 * 增加 组合实体类
 	*/
-	public void add(TbGoods goods);
+	public void add(Goods goods);
 
 
 	/**

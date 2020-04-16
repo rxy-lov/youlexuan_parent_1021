@@ -113,7 +113,15 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
+
   <insert id="insert" parameterType="com.offcn.pojo.TbGoods" >
+
+
+    /*查询并返回插入的id，order="AFTER" 表示插入完了*/
+    <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+
+      select  LAST_INSERT_ID() as id
+    </selectKey>
     insert into tb_goods (id, seller_id, goods_name, 
       default_item_id, audit_status, is_marketable, 
       brand_id, caption, category1_id, 
