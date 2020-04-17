@@ -30,9 +30,9 @@
 	<script src="../js/service/uploadService.js"></script>
 	<script src="../js/service/itemCatService.js"></script>
 	<script src="../js/service/typeTemplateService.js"></script>
+	<script src="../js/controller/baseController021.js"></script>
 	<script src="../js/controller/goodsController.js"></script>
-    
-    
+
 </head>
 
 <body class="hold-transition skin-red sidebar-mini" ng-app="youlexuan" ng-controller="goodsController" ng-init="selectItemCat1List()">
@@ -192,6 +192,7 @@
 			                        <div class="col-md-10 data">
 			                        	<input type="checkbox" >			                           
 			                        </div>
+									{{entity}}
                             	</div>
                             	<p>
                             	
@@ -199,19 +200,12 @@
                             	
 	                                <div class="row data-type">
 	                                
-		                                <div ng-repeat="spec in typeTemplate.specIds">
+		                                <div ng-repeat="spec in specList">
 			                                <div class="col-md-2 title">{{spec.text}}</div>
 					                        <div class="col-md-10 data">
-					                               
-					                            <span>
-					                            	<input  type="checkbox" >4.0					                            				                            	
-					                            </span>  	
-												<span>
-					                            	<input  type="checkbox" >4.5					                            				                            	
+					                            <span ng-repeat="option in spec.options">
+					                            	<input  type="checkbox" ng-click="updateSpecAttribute($event,spec.text,option.optionName)">{{option.optionName}}
 					                            </span>
-												<span>
-					                            	<input  type="checkbox" >5.0					                            				                            	
-					                            </span>												
 					                            	
 					                        </div>
 		                                </div>   

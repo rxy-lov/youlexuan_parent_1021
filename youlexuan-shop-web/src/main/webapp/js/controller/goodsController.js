@@ -1,6 +1,8 @@
  //控制层 
 app.controller('goodsController' ,function($scope,$controller  ,goodsService, uploadSevice, itemCatService, typeTemplateService){
-	
+
+	$controller('baseController',{$scope:$scope});
+
     //读取列表数据绑定到表单中
 	$scope.findAll=function(){
 		goodsService.findAll().success(
@@ -32,7 +34,7 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
     /**
 	 * 定义前端组合实体对象
      */
-    $scope.entity = {goods:{},goodsDesc:{itemImages:[]},itemList:[]};  //{}--json对象  []--数组或者集合对象
+    $scope.entity = {goods:{},goodsDesc:{itemImages:[],specificationItems:[]},itemList:[]};  //{}--json对象  []--数组或者集合对象
 
 	//保存 
 	$scope.save=function(){				
@@ -168,12 +170,40 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
                     //$scope.typeTemplate.specIds = JSON.parse($scope.typeTemplate.specIds)//字符串转json自定义属性集合
                 }
 			);
+            //没法同上直接转json是因为没有规格项,所以新写如下方法,查询规格项
             typeTemplateService.findSpecList(newValue).success(
                 function (response) {
-                    $scope.typeTemplate = response;//模板对象
+                    $scope.specList = response;//模板对象
+
                 }
             );
 
 		}
     })
+
+    /**
+     * 根据复选框勾选取消来增加或删除组合实体对象中的spu_desc中的规格项集合
+     */
+    $scope.updateSpecAttribute=function ($event,name,value) {
+
+            //调用公共方法判断name在集合中是否已经存在了
+            var object = $scope.searchObjectByKey($scope.entity.goodsDesc.specificationItems, 'attributeName', name);
+
+            if(object != null){//存在
+                if($event.target.checked){//添加
+                    object.attributeValue.push(value);
+                }else{//删除
+                    object.attributeValue.splice(object.attributeValue.indexOf(value), 1);
+
+                    //要考虑object.attributeValue集合如果长度变成0，所在对象都已经没有存在的意义了
+                    if(object.attributeValue.length == 0){
+                        $scope.entity.goodsDesc.specificationItems.splice($scope.entity.goodsDesc.specificationItems.indexOf(object), 1);
+                    }
+                }
+
+            }else{//不存在,新建一个自定义的规格对象
+                $scope.entity.goodsDesc.specificationItems.push({'attributeName':name, 'attributeValue':[value]});
+            }
+        }
+
 });	

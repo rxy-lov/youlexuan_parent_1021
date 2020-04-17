@@ -65,4 +65,19 @@ app.controller('baseController', function ($scope) {//依赖注入服务
         }
         return jsonStr;
     }
+
+    /**
+     * 通用方法:在给定集合中查找指定的key对应值的对象是否存在
+     * 例如list,attributeName,网络,机身内存,电视屏幕尺寸
+     *
+     * 查询对象有没有
+     */
+    $scope.searchObjectByKey=function (list,key,value) {
+        for(var i=0;i<list.length;i++){
+            if(list[i][key]==value){
+                return list[i];
+            }
+        }
+        return null;
+    }
 });
