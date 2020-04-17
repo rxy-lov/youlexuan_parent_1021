@@ -34,7 +34,7 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
     /**
 	 * 定义前端组合实体对象
      */
-    $scope.entity = {goods:{},goodsDesc:{itemImages:[],specificationItems:[]},itemList:[]};  //{}--json对象  []--数组或者集合对象
+    $scope.entity = {goods:{isEnableSpec:0},goodsDesc:{itemImages:[],specificationItems:[]},itemList:[]};  //{}--json对象  []--数组或者集合对象
 
 	//保存 
 	$scope.save=function(){				
@@ -54,8 +54,7 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
 
 					//提示成功
 					alert("保存成功")
-                    $scope.entity = {};
-
+                    $scope.entity = {goods:{isEnableSpec:0},goodsDesc:{itemImages:[],specificationItems:[]},itemList:[]};
 					//清空编辑器
                     editor.html('');
 				}else{
@@ -206,4 +205,37 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
             }
         }
 
+
+    /**
+	 * 根据所选规格项生成sku列表
+	 * 勾选规格项本质就是加sku列表中的spec:{},sku的数量  排列组合
+     */
+    $scope.createItemList=function () {
+		//初始化母本
+		$scope.entity.itemList=[{spec:{},price:0,num:9999,status:'0',isDefault:'0'}];
+
+		//起个别名$scope.entity.goodsDesc.specificationItems   list
+		var items = $scope.entity.goodsDesc.specificationItems;
+		for(var i=0;i<items.length;i++){
+            $scope.entity.itemList=addColumn($scope.entity.itemList,items[i].attributeName, items[i].attributeValue );
+		}
+    }
+
+    /**
+	 * 给定的集合中,循环加工(没有新加,有的插入)spec:{},最终返回加工后的集合$scope.entity.itemList
+     */
+    addColumn=function (list,attributeName,attributeValue) {
+     	var newList=[];
+		for(var i=0;i<list.length;i++){//如果是第一次进来,只会循环一次.因为其中只有一个初始化的集合
+			//加工的旧行
+			var oldRow = list[i];
+			for(var j=0;j<attributeValue.length;j++){
+				var newRow = JSON.parse(JSON.stringify(oldRow));//有问题,先转换成字符串,再将字符串转换成json--深层拷贝--2个地址
+                newRow.spec[attributeName]= attributeValue[j];
+
+                newList.push(newRow);
+			}
+		}
+		return newList;
+    }
 });	
