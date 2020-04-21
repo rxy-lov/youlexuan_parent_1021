@@ -211,12 +211,14 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
 	 * 勾选规格项本质就是加sku列表中的spec:{},sku的数量  排列组合
      */
     $scope.createItemList=function () {
-		//初始化母本
+		//1.初始化母本
 		$scope.entity.itemList=[{spec:{},price:0,num:9999,status:'0',isDefault:'0'}];
 
-		//起个别名$scope.entity.goodsDesc.specificationItems   list
+		//2.起个别名$scope.entity.goodsDesc.specificationItems   list
 		var items = $scope.entity.goodsDesc.specificationItems;
+
 		for(var i=0;i<items.length;i++){
+			//调用加工itemList后返回加工好的itemList.加工谁呢?加工每一个item中的spec:{},用什么加工呢
             $scope.entity.itemList=addColumn($scope.entity.itemList,items[i].attributeName, items[i].attributeValue );
 		}
     }
@@ -225,7 +227,10 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
 	 * 给定的集合中,循环加工(没有新加,有的插入)spec:{},最终返回加工后的集合$scope.entity.itemList
      */
     addColumn=function (list,attributeName,attributeValue) {
+
+    	//a.初始化一个空的新集合
      	var newList=[];
+     	//b.
 		for(var i=0;i<list.length;i++){//如果是第一次进来,只会循环一次.因为其中只有一个初始化的集合
 			//加工的旧行
 			var oldRow = list[i];
@@ -237,5 +242,21 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
 			}
 		}
 		return newList;
+    }
+
+   //定义商品状态集合
+	$scope.status=['未审核','已审核','审核未通过','关闭'];
+
+    //定义商品分类,数据库查询
+	$scope.itemCatList=[];
+	$scope.findItemCatList=function () {
+		itemCatService.findAll().success(
+			function (response) {
+				//循环封装返回结果到$scope.itemCatList
+				for(var i=0;i<response.length;i++){
+                    $scope.itemCatList[response[i].id]=response[i].name;//$scope.itemCatList[1]='图书、音像、电子书刊'
+				}
+            }
+		);
     }
 });	

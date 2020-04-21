@@ -31,7 +31,7 @@ public class ItemCatController {
 	public List<TbItemCat> findAll(){			
 		return itemCatService.findAll();
 	}
-	
+
 	
 	/**
 	 * 返回全部列表
