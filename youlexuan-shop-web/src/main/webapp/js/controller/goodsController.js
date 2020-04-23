@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller  ,goodsService, uploadSevice, itemCatService, typeTemplateService){
+app.controller('goodsController' ,function($scope,$controller  ,$location,goodsService, uploadSevice, itemCatService, typeTemplateService){
 
 	$controller('baseController',{$scope:$scope});
 
@@ -23,12 +23,33 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
 	}
 	
 	//查询实体 
-	$scope.findOne=function(id){				
-		goodsService.findOne(id).success(
-			function(response){
-				$scope.entity= response;					
-			}
-		);				
+	$scope.findOne=function(){
+		//a.获取从goods.html或者地址栏中输入传递过来的id=$location.search()['id'],#?id=***
+		var id = $location.search()['id'];
+		if(id != null){
+            goodsService.findOne(id).success(
+                function(response){
+                    $scope.entity= response;
+                    //富文本编辑器内容回显
+                    editor.html($scope.entity.goodsDesc.introduction);
+                    //图片的json转换
+                    $scope.entity.goodsDesc.itemImages = JSON.parse($scope.entity.goodsDesc.itemImages);
+
+                    //显示扩展属性
+                    $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.entity.goodsDesc.customAttributeItems);
+
+                    //显示规格
+                    $scope.entity.goodsDesc.specificationItems = JSON.parse($scope.entity.goodsDesc.specificationItems);
+
+               		//sku中的spec进行json转换
+					for(var i=0;i<$scope.entity.itemList.length;i++){
+                        $scope.entity.itemList[i].spec = JSON.parse($scope.entity.itemList[i].spec);
+					}
+
+                }
+            );
+        }
+
 	}
 
     /**
@@ -37,26 +58,23 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
     $scope.entity = {goods:{isEnableSpec:0},goodsDesc:{itemImages:[],specificationItems:[]},itemList:[]};  //{}--json对象  []--数组或者集合对象
 
 	//保存 
-	$scope.save=function(){				
+	$scope.save=function(){
+
+        //把富文本编辑器中的值赋值给entity.在这个位置添加和修改都可以获取到富文本编辑器中的值
+        $scope.entity.goodsDesc.introduction = editor.html();
+
 		var serviceObject;//服务层对象  				
 		if($scope.entity.goods.id!=null){//如果有ID
 			serviceObject=goodsService.update( $scope.entity ); //修改  
 		}else{
 
-			//把富文本编辑器中的值赋值给entity
-			$scope.entity.goodsDesc.introduction = editor.html();
-
-			serviceObject=goodsService.add( $scope.entity  );//增加 
+			serviceObject=goodsService.add( $scope.entity  );//增加
 		}				
 		serviceObject.success(
 			function(response){
 				if(response.success){
-
-					//提示成功
-					alert("保存成功")
-                    $scope.entity = {goods:{isEnableSpec:0},goodsDesc:{itemImages:[],specificationItems:[]},itemList:[]};
-					//清空编辑器
-                    editor.html('');
+                    //查询列表
+					location.href="goods.html";
 				}else{
 					alert(response.message);
 				}
@@ -165,7 +183,10 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
                     $scope.typeTemplate = response;//模板对象
 
                     $scope.typeTemplate.brandIds = JSON.parse($scope.typeTemplate.brandIds)//字符串转json品牌集合
-                    $scope.typeTemplate.customAttributeItems = JSON.parse($scope.typeTemplate.customAttributeItems)//字符串转json自定义属性集合
+
+					if($location.search()['id'] == null){
+                        $scope.entity.goodsDesc.customAttributeItems = JSON.parse($scope.typeTemplate.customAttributeItems);//扩展属性
+					}
                     //$scope.typeTemplate.specIds = JSON.parse($scope.typeTemplate.specIds)//字符串转json自定义属性集合
                 }
 			);
@@ -259,4 +280,22 @@ app.controller('goodsController' ,function($scope,$controller  ,goodsService, up
             }
 		);
     }
+
+    //判断当前的规格项是否存在于$scope.entity.goodsDesc.specificationItems?true:false
+	$scope.checkAttributeValue=function(specName,optionName){
+        var items = $scope.entity.goodsDesc.specificationItems;
+
+		//判断 specName是optionName 在 items是否存在
+        var object = $scope.searchObjectByKey(items, 'attributeName', specName);
+
+        if(object == null){
+			return false;
+		}else{//object中attributeValue是否存在
+        	if(object.attributeValue.indexOf(optionName) >= 0){
+				return true;
+			}
+			return false;
+		}
+	}
+
 });	

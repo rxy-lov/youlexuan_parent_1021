@@ -1,10 +1,13 @@
 com\offcn\manager\controller\SpecificationController.class
-com\offcn\manager\controller\TypeTemplateController.class
+com\offcn\manager\controller\UploadController.class
 com\offcn\manager\controller\SpecificationOptionController.class
 com\offcn\manager\controller\GoodsController.class
-com\offcn\manager\controller\GoodsDescController.class
 com\offcn\manager\controller\LoginController.class
 com\offcn\manager\controller\ItemController.class
 com\offcn\manager\controller\SellerController.class
-com\offcn\manager\controller\ItemCatController.class
 com\offcn\manager\controller\BrandController.class
+com\offcn\manager\controller\TypeTemplateController.class
+com\offcn\manager\controller\ContentController.class
+com\offcn\manager\controller\GoodsDescController.class
+com\offcn\manager\controller\ContentCategoryController.class
+com\offcn\manager\controller\ItemCatController.class

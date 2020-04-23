@@ -12,8 +12,10 @@ import com.offcn.pojo.TbGoods;
 import com.offcn.pojo.TbGoodsExample;
 import com.offcn.pojo.TbGoodsExample.Criteria;
 import com.offcn.pojo.TbItem;
+import com.offcn.pojo.TbItemExample;
 import com.offcn.sellergoods.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -65,17 +67,28 @@ public class GoodsServiceImpl implements GoodsService {
 	 * 增加
 	 */
 	@Override
+	@Transactional
 	public void add(Goods goods) {
 
 		//1.添加sku
 		goods.getGoods().setAuditStatus( "0" );
 		goodsMapper.insert(goods.getGoods());
 
+		//模拟显示中网络异常
+		String[] arr = new String[2];
+		System.out.println(arr[3]);
+
+
 		//2.添加sku_desc
 		goods.getGoodsDesc().setGoodsId( goods.getGoods().getId() );
 		goodsDescMapper.insert( goods.getGoodsDesc() );
 
+		//3.添加sku列表
+		saveItemList(goods);
 
+	}
+
+	public void saveItemList(Goods goods){
 		if(goods.getGoods().getIsEnableSpec().equals( "1" )){
 //3.添加sku列表
 			for (TbItem item : goods.getItemList()) {
@@ -107,7 +120,6 @@ public class GoodsServiceImpl implements GoodsService {
 			itemMapper.insert(item);
 
 		}
-
 	}
 
 	/**
@@ -142,8 +154,23 @@ public class GoodsServiceImpl implements GoodsService {
 	 * 修改
 	 */
 	@Override
-	public void update(TbGoods goods){
-		goodsMapper.updateByPrimaryKey(goods);
+	public void update(Goods goods)
+	{
+		goods.getGoods().setAuditStatus( "0" );//初始化审核状态,然后让审核人员再次审核
+		// 修改spu
+		goodsMapper.updateByPrimaryKey(goods.getGoods());
+
+		//修改spu_desc
+		goodsDescMapper.updateByPrimaryKey( goods.getGoodsDesc() );
+
+		//修改sku列表,先删后插入
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdEqualTo( goods.getGoods().getId() );
+		itemMapper.deleteByExample( example);
+
+		//插入,与添加方法共用一套
+		saveItemList(goods);
 	}	
 	
 	/**
@@ -152,8 +179,20 @@ public class GoodsServiceImpl implements GoodsService {
 	 * @return
 	 */
 	@Override
-	public TbGoods findOne(Long id){
-		return goodsMapper.selectByPrimaryKey(id);
+	public Goods findOne(Long id){
+		Goods goods = new Goods(  );
+		//查spu
+		goods.setGoods( goodsMapper.selectByPrimaryKey(id) );
+		//查spu_desc
+		goods.setGoodsDesc( goodsDescMapper.selectByPrimaryKey( id ) );
+
+		//读取sku列表
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdEqualTo( id );
+		List<TbItem> itemList = itemMapper.selectByExample( example );
+		goods.setItemList( itemList );
+		return goods;
 	}
 
 	/**
@@ -162,7 +201,23 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
-			goodsMapper.deleteByPrimaryKey(id);
+
+			//逻辑删除spu,修改状态值
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey( id );
+			tbGoods.setIsDelete( "1" );
+			goodsMapper.updateByPrimaryKey(tbGoods  );
+
+
+			//逻辑删除sku
+			//读取sku列表
+			TbItemExample example = new TbItemExample();
+			TbItemExample.Criteria criteria = example.createCriteria();
+			criteria.andGoodsIdEqualTo( id );
+			List<TbItem> itemList = itemMapper.selectByExample( example );
+			for (TbItem item : itemList) {
+				item.setStatus( "3" );
+				itemMapper.updateByPrimaryKey(  item);
+			}
 		}		
 	}
 	
@@ -186,10 +241,35 @@ public class GoodsServiceImpl implements GoodsService {
 			if(goods.getAuditStatus() != null){
 				criteria.andAuditStatusEqualTo( goods.getAuditStatus() );
 			}
+			criteria.andIsDeleteIsNull();
 		}
 		
 		Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	@Override
+	public void updateStatus(Long[] ids, String status) {
+
+		for (Long id : ids) {
+			//修改spu状态
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey( id );
+			tbGoods.setAuditStatus(status );
+			goodsMapper.updateByPrimaryKey( tbGoods );
+
+			//修改sku列联表中的状态
+			TbItemExample example = new TbItemExample();
+			TbItemExample.Criteria criteria = example.createCriteria();
+			criteria.andGoodsIdEqualTo( id );
+			List<TbItem> itemList = itemMapper.selectByExample( example );
+
+			for (TbItem item : itemList) {
+				item.setStatus( status );
+				itemMapper.updateByPrimaryKey( item );
+			}
+
+		}
+
+	}
+
 }

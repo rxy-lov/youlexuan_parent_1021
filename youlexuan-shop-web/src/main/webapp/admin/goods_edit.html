@@ -35,7 +35,7 @@
 
 </head>
 
-<body class="hold-transition skin-red sidebar-mini" ng-app="youlexuan" ng-controller="goodsController" ng-init="selectItemCat1List()">
+<body class="hold-transition skin-red sidebar-mini" ng-app="youlexuan" ng-controller="goodsController" ng-init="selectItemCat1List();findOne()">
 
             <!-- 正文区域 -->
             <section class="content">
@@ -173,10 +173,10 @@
                             <!--扩展属性-->
                             <div class="tab-pane" id="customAttribute">
                                 <div class="row data-type">                                
-	                                <div ng-repeat="attr in typeTemplate.customAttributeItems">
-		                                <div class="col-md-2 title">{{attr.text}}</div>
+	                                <div ng-repeat="pojo  in entity.goodsDesc.customAttributeItems">
+		                                <div class="col-md-2 title">{{pojo.text}}</div>
 				                        <div class="col-md-10 data">
-				                              <input class="form-control" placeholder="{{attr.text}}">
+				                              <input class="form-control" placeholder="{{pojo.text}}" value="{{pojo.value}}">
 				                        </div>
 	                                </div>       
 
@@ -188,9 +188,8 @@
                             	<div class="row data-type">
 	                            	<div class="col-md-2 title">是否启用规格</div>
 			                        <div class="col-md-10 data">
-			                        	<input type="checkbox" ng-model="entity.goods.isEnableSpec" ng-true-value="1" ng-false-value="0">
+			                        	<input type="checkbox" ng-model="entity.goods.isEnableSpec" ng-cheked="entity.goods.isEnableSpec==1" ng-true-value="1" ng-false-value="0">
 			                        </div>
-									{{entity}}
                             	</div>
                             	<p>
                             	
@@ -202,7 +201,7 @@
 			                                <div class="col-md-2 title">{{spec.text}}</div>
 					                        <div class="col-md-10 data">
 					                            <span ng-repeat="option in spec.options">
-					                            	<input  type="checkbox" ng-click="updateSpecAttribute($event,spec.text,option.optionName);createItemList()">{{option.optionName}}
+					                            	<input  type="checkbox" ng-checked="checkAttributeValue(spec.text, option.optionName)" ng-click="updateSpecAttribute($event,spec.text,option.optionName);createItemList()">{{option.optionName}}
 					                            </span>
 					                            	
 					                        </div>
@@ -230,10 +229,10 @@
 										            	{{pojo.spec[item.attributeName]}}
 										            </td>
 										            <td>
-										           		<input class="form-control" ng-model="pojo.price"  placeholder="价格">
+										           		<input class="form-control" ng-model="pojo.price"  placeholder="价格" value="{{pojo.price}}">
 										            </td>
 										            <td>
-										            	<input class="form-control" ng-model="pojo.num" placeholder="库存数量">
+										            	<input class="form-control" ng-model="pojo.num" placeholder="库存数量" value="{{pojo.num}}">
 										            </td>
 										            <td>
 										             	<input type="checkbox" ng-model="pojo.status" ng-true-value="1" ng-true-value="0">
@@ -263,7 +262,7 @@
                    </div>
                   <div class="btn-toolbar list-toolbar">
 				      <button class="btn btn-primary" ng-click="save()"><i class="fa fa-save"></i>保存</button>
-				      <button class="btn btn-default" >返回列表</button>
+					  <a href="goods.html" class="btn btn-default">返回列表</a>
 				  </div>
 			
             </section>

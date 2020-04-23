@@ -105,6 +105,11 @@
             <artifactId>youlexuan-sellergoods-interface</artifactId>
             <version>0.0.21-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.offcn</groupId>
+            <artifactId>youlexuan-content-interface</artifactId>
+            <version>0.0.21-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -70,7 +70,28 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
+
+		//当前登录的商家id:SecurityContextHolder.getContext().getAuthentication().getName()
+		/**
+		 * 数据库中的存储的商品的商家id
+		 * 获取数据库的商品sqlGoods:goodsService.findOne( goods.getGoods().getId() );
+		 * 获取数据库商品中的商家id  sqlGoods.getGoods().getSellerId()
+		 */
+
+
+
+		//证明传入的商品中的商家与数据库存储的该商品的商家是同一个人
+		//查询数据库中的商品
+		Goods sqlGoods = goodsService.findOne( goods.getGoods().getId() );
+		String sellerId = sqlGoods.getGoods().getSellerId();
+
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();//当前登录的商家id
+
+		if(!sellerId.equals( name )){
+			return new Result(false, "这个商品不是您的，无权修改");
+		}
+
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -86,7 +107,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
